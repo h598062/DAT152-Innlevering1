@@ -15,8 +15,24 @@ template.innerHTML = `
 `;
 
 class TaskView extends HTMLElement {
+    #tasklist
+    #taskbox
     constructor() {
         super();
+        const content = template.content.cloneNode(true);
+
+        // save the tasklist and taskbox elements for easier access
+        this.#tasklist = content.querySelector("task-list");
+        this.#taskbox = content.querySelector("task-box");
+
+        // add click handler to the new task button
+        const btn = content.querySelector("#newtask>button");
+        btn.addEventListener("click", () => {
+            this.#taskbox.show();
+        });
+
+        this.appendChild(content);
     }
+
 }
 customElements.define('task-view', TaskView);
