@@ -16,3 +16,11 @@ template.innerHTML = `
         <p><button type="submit">Add task</button></p>
     </dialog>
 `;
+
+class TaskBox extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+
+customElements.define('task-box', TaskBox);

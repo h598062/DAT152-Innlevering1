@@ -13,3 +13,10 @@ template.innerHTML = `
     <!-- The Modal -->
     <task-box></task-box>
 `;
+
+class TaskView extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+customElements.define('task-view', TaskView);
