@@ -18,8 +18,35 @@ template.innerHTML = `
 `;
 
 class TaskBox extends HTMLElement {
+    #dialog
+
     constructor() {
         super();
+
+        const content = template.content.cloneNode(true);
+        this.#dialog = content.querySelector("dialog");
+
+        // make sure the "x" in the dialog modal closes it (like ESC key would)
+        content.querySelector("span").addEventListener("click", () => {
+            this.#dialog.close()
+        })
+        this.appendChild(content);
+    }
+
+    newtaskCallback(callback) {
+        console.error("TaskBox: newtaskCallback() not implemented yet");
+    }
+
+    setStatusesList(list) {
+        console.error("TaskBox: setStatusesList() not implemented yet");
+    }
+
+    show() {
+        this.#dialog.showModal();
+    }
+
+    close() {
+        this.#dialog.close();
     }
 }
 
