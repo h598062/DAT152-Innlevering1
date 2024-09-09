@@ -19,6 +19,7 @@ template.innerHTML = `
 
 class TaskBox extends HTMLElement {
     #dialog
+    #callbackForAddTask
 
     constructor() {
         super();
@@ -28,17 +29,43 @@ class TaskBox extends HTMLElement {
 
         // make sure the "x" in the dialog modal closes it (like ESC key would)
         content.querySelector("span").addEventListener("click", () => {
-            this.#dialog.close()
+            this.#dialog.close();
         })
         this.appendChild(content);
     }
 
     newtaskCallback(callback) {
-        console.error("TaskBox: newtaskCallback() not implemented yet");
+        this.#callbackForAddTask = callback;
+        const btn = this.querySelector("button");
+        const input = this.querySelector("input");
+        const select = this.querySelector("select");
+        btn.addEventListener("click", () => {
+            const title = input.value;
+            const status = select.value;
+
+            console.log(`title: ${title} - status: ${status}`);
+            this.#callbackForAddTask(title, status);
+            this.close();
+
+        })
     }
 
     setStatusesList(list) {
-        console.error("TaskBox: setStatusesList() not implemented yet");
+        if (!Array.isArray(list)) {
+            console.error(`${list} is not a valid array`);
+            return;
+        }
+        if (list.length < 1) {
+            console.error("The status array must contain atleast one status");
+            return;
+        }
+        const select = this.querySelector("select");
+        for (let status of list) {
+            const elm = document.createElement("option");
+            elm.value = status;
+            elm.innerText = status;
+            select.appendChild(elm);
+        }
     }
 
     show() {
@@ -47,6 +74,8 @@ class TaskBox extends HTMLElement {
 
     close() {
         this.#dialog.close();
+        this.querySelector("input").value = "";
+        this.querySelector("select").value = "";
     }
 }
 

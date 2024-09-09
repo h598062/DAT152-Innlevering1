@@ -30,8 +30,8 @@ taskrow.innerHTML = `
  */
 class TaskList extends HTMLElement {
     #statuslist = null;
-    #changeStatusCallback = null;
-    #removeCallback = null;
+    #callbackChangeStatus = null;
+    #callbackRemove = null;
 
     constructor() {
         super();
@@ -62,7 +62,7 @@ class TaskList extends HTMLElement {
      * @param {function} callback
      */
     changestatusCallback(callback) {
-        this.#changeStatusCallback = callback;
+        this.#callbackChangeStatus = callback;
         const rows = this.querySelectorAll("tbody>tr");
         rows.forEach((row) => {
             this.#setStatusChangeCallback(row);
@@ -81,7 +81,7 @@ class TaskList extends HTMLElement {
             //console.log(`Change - id: ${id}  -  newStatus: ${newStatus}`);
             const confirmed = window.confirm(`Set '${row.querySelector("td").innerText}' to ${newStatus}?`);
             if (confirmed) {
-                this.#changeStatusCallback(id, newStatus);
+                this.#callbackChangeStatus(id, newStatus);
             }
         })
     }
@@ -92,7 +92,7 @@ class TaskList extends HTMLElement {
      * @param {Function} callback
      */
     deletetaskCallback(callback) {
-        this.#removeCallback = callback;
+        this.#callbackRemove = callback;
         // also update any rows which were previously added
         const rows = this.querySelectorAll("tbody>tr");
         rows.forEach((row) => {
@@ -111,7 +111,7 @@ class TaskList extends HTMLElement {
             //console.log(`Delete - id: ${id}`);
             const confirmed = window.confirm(`Delete task '${row.querySelector("td").innerText}'?`);
             if (confirmed) {
-                this.#removeCallback(id);
+                this.#callbackRemove(id);
             }
         })
     }
@@ -157,10 +157,10 @@ class TaskList extends HTMLElement {
             newStatus.innerText = status;
             statusSelect.appendChild(newStatus);
         });
-        if (typeof this.#changeStatusCallback === "function") {
+        if (typeof this.#callbackChangeStatus === "function") {
             this.#setStatusChangeCallback(row)
         }
-        if (typeof this.#removeCallback === "function") {
+        if (typeof this.#callbackRemove === "function") {
             this.#setRemoveCallback(row)
         }
         tableBody.appendChild(newRow);
