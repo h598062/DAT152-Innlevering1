@@ -1,3 +1,6 @@
+import "../tasklist/tasklist.js";
+import "../taskbox/taskbox.js";
+
 const template = document.createElement("template");
 template.innerHTML = `
     <link rel="stylesheet" type="text/css"
@@ -38,8 +41,6 @@ class TaskView extends HTMLElement {
         btn.addEventListener("click", () => {
             this.#taskbox.show();
         });
-        // enable button
-        content.querySelector("button").disabled = false;
 
         this.appendChild(content);
 
@@ -82,6 +83,7 @@ class TaskView extends HTMLElement {
                     response.json().then(json => {
                         if (json["responseStatus"] === true) {
                             this.#tasklist.showTask(json["task"]);
+                            this.#updateAmountShown();
                         }
                     });
                 } else {
@@ -102,6 +104,7 @@ class TaskView extends HTMLElement {
                     response.json().then(json => {
                         if (json["responseStatus"] === true) {
                             this.#tasklist.removeTask(json["id"]);
+                            this.#updateAmountShown();
                         }
                     });
                 } else {
@@ -128,8 +131,9 @@ class TaskView extends HTMLElement {
                             this.#tasklist.setStatuseslist(this.#statuseslist);
                             this.#taskbox.setStatusesList(this.#statuseslist);
                         }
-
                     });
+                    // enable the button for adding new tasks
+                    this.querySelector("#newtask > button").disabled = false;
                 } else {
                     throw new Error("Could not connect to server");
                 }
@@ -145,10 +149,10 @@ class TaskView extends HTMLElement {
                 if (response.ok) {
                     response.json().then(json => {
                         if (json.tasks) {
-                            this.querySelector("#message>p").innerText = `Found ${json.tasks.length} tasks.`
                             for (const task of json.tasks) {
                                 this.#tasklist.showTask(task);
                             }
+                            this.#updateAmountShown();
                         }
                     });
                 } else {
@@ -156,6 +160,10 @@ class TaskView extends HTMLElement {
                 }
             });
 
+    }
+
+    #updateAmountShown() {
+        this.querySelector("#message>p").innerText = `Found ${this.#tasklist.getNumtasks()} tasks.`
     }
 
 }

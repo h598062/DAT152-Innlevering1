@@ -32,6 +32,7 @@ class TaskList extends HTMLElement {
     #statuslist = null;
     #callbackChangeStatus = null;
     #callbackRemove = null;
+    #table = null;
 
     constructor() {
         super();
@@ -74,7 +75,7 @@ class TaskList extends HTMLElement {
      * @param row {HTMLTableRowElement} The task row element
      */
     #setStatusChangeCallback(row) {
-        const id = row.id.slice(4);
+        const id = row.getAttribute("task-id");
         const selectElm = row.querySelector("select");
         selectElm.addEventListener("input", () => {
             const newStatus = selectElm.value;
@@ -83,6 +84,7 @@ class TaskList extends HTMLElement {
             if (confirmed) {
                 this.#callbackChangeStatus(id, newStatus);
             }
+            selectElm.value = 0
         })
     }
 
@@ -105,7 +107,7 @@ class TaskList extends HTMLElement {
      * @param row {HTMLTableRowElement} The task row element
      */
     #setRemoveCallback(row) {
-        const id = row.id.slice(4);
+        const id = row.getAttribute("task-id");
         const removeBtn = row.querySelector("button");
         removeBtn.addEventListener("click", () => {
             //console.log(`Delete - id: ${id}`);
@@ -126,8 +128,7 @@ class TaskList extends HTMLElement {
             console.error("You must first provide a list of valid statuses");
             return;
         }
-        let tableElm = this.querySelector("table");
-        if (tableElm === null) {
+        if (this.#table === null) {
             const containerDiv = this.querySelector("div#tasklist");
             if (containerDiv === null) {
                 console.error(`Tasklist container div is missing, this component ${this} is broken`);
@@ -135,6 +136,7 @@ class TaskList extends HTMLElement {
             }
             // legg til en kopi av tasktable noden
             containerDiv.appendChild(tasktable.content.cloneNode(true));
+            this.#table = containerDiv.querySelector("table");
         }
         if (!this.#validateTask(task)) {
             return;
@@ -142,11 +144,11 @@ class TaskList extends HTMLElement {
         let tableBody = this.querySelector("tbody");
         if (tableBody === null) {
             console.error(`Tasklist table does not have a table body, it will be recreated`);
-            tableBody = tableElm.createTBody();
+            tableBody = this.#table.createTBody();
         }
         const newRow = taskrow.content.cloneNode(true);
         const row = newRow.querySelector("tr");
-        row.id = `task${task.id}`;
+        row.setAttribute("task-id", task.id);
         const tds = newRow.querySelectorAll(`td`);
         tds[0].innerText = task.title;
         tds[1].innerText = task.status;
@@ -163,7 +165,8 @@ class TaskList extends HTMLElement {
         if (typeof this.#callbackRemove === "function") {
             this.#setRemoveCallback(row)
         }
-        tableBody.appendChild(newRow);
+        tableBody.prepend(newRow)
+        // tableBody.appendChild(newRow);
     }
 
     /**
@@ -180,7 +183,7 @@ class TaskList extends HTMLElement {
             console.error(`status ${status} is not a valid status`);
             return;
         }
-        const taskElm = this.querySelector(`#task${id}`); // tr
+        const taskElm = this.querySelector(`tr[task-id="${id}"]`); // tr
         // 0 == task text, 1 == task status, 2 == modify status list, 3 == remove btn
         taskElm.children[1].innerText = status;
     }
@@ -194,7 +197,7 @@ class TaskList extends HTMLElement {
             console.error(`id ${id} is not an integer`);
             return;
         }
-        const taskElement = this.querySelector(`#task${id}`);
+        const taskElement = this.querySelector(`tr[task-id="${id}"]`);
         taskElement.remove();
     }
 
@@ -204,8 +207,7 @@ class TaskList extends HTMLElement {
      * @returns {Number} - Number of tasks on display in view
      */
     getNumtasks() {
-        const tableRows = this.querySelectorAll("tbody>tr");
-        return tableRows.length;
+        return this.#table.tBodies[0].rows.length;
     }
 
     /**
@@ -233,3 +235,4 @@ class TaskList extends HTMLElement {
 }
 
 customElements.define('task-list', TaskList);
+// export default TaskList
